@@ -5,6 +5,7 @@ import { shortenLink } from './shortLinkThunks';
 interface ShortLinkState {
   originalUrl: string;
   shortUrl: string;
+  showShortUrl: boolean;
   loading: boolean;
   error: boolean;
 }
@@ -12,6 +13,7 @@ interface ShortLinkState {
 const initialState: ShortLinkState = {
   originalUrl: '',
   shortUrl: '',
+  showShortUrl: false,
   loading: false,
   error: false,
 };
@@ -41,6 +43,7 @@ const shortLinkSlice = createSlice({
         (state, { payload: shortUrl }: PayloadAction<string>) => {
           state.loading = false;
           state.shortUrl = shortUrl;
+          state.showShortUrl = true;
         }
       )
       .addCase(shortenLink.rejected, (state) => {
@@ -56,3 +59,5 @@ export const selectOriginalUrl = (state: RootState) =>
   state.shortLink.originalUrl;
 export const selectShortlUrl = (state: RootState) => state.shortLink.shortUrl;
 export const selectFormLoading = (state: RootState) => state.shortLink.loading;
+export const selectShowShortUrl = (state: RootState) =>
+  state.shortLink.showShortUrl;

@@ -1,15 +1,11 @@
 import React from 'react';
+import { Box, Container, Grid, TextField, Typography } from '@mui/material';
 import {
-  Box,
-  Container,
-  Grid,
-  TextField,
-  Typography,
-} from '@mui/material';
-import {
+  clearForm,
   selectFormLoading,
   selectOriginalUrl,
   selectShortlUrl,
+  selectShowShortUrl,
   updateOriginalUrl,
 } from './store/shortLinkSlice/shortLinkSlice';
 import { useAppDispatch, useAppSelector } from './app/hooks';
@@ -22,10 +18,11 @@ const App: React.FC = () => {
   const originalUrl = useAppSelector(selectOriginalUrl);
   const shortUrl = useAppSelector(selectShortlUrl);
   const isLoading = useAppSelector(selectFormLoading);
-
-  const onFormSubmit = (e: React.FormEvent) => {
+  const showShortUrl = useAppSelector(selectShowShortUrl);
+  const onFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    dispatch(shortenLink({url: originalUrl}))
+    await dispatch(shortenLink({ url: originalUrl }));
+    dispatch(clearForm())
   };
 
   return (
@@ -65,14 +62,16 @@ const App: React.FC = () => {
           </form>
         </Grid>
       </Grid>
-      <Box sx={{ mt: 5 }} textAlign={'center'}>
-        <Typography variant='h6' sx={{ mb: 3 }}>
-          Your link now looks like this
-        </Typography>
-        <a href={`${apiUrl}/links/${shortUrl}`} target='_blank'>
-          {`${apiUrl}/${shortUrl}`}
-        </a>
-      </Box>
+      {showShortUrl ? (
+        <Box sx={{ mt: 5 }} textAlign={'center'}>
+          <Typography variant='h6' sx={{ mb: 3 }}>
+            Your link now looks like this
+          </Typography>
+          <a href={`${apiUrl}/links/${shortUrl}`} target='_blank'>
+            {`${apiUrl}/${shortUrl}`}
+          </a>
+        </Box>
+      ) : null}
     </Container>
   );
 };
