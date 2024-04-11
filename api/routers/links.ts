@@ -1,6 +1,7 @@
 import express from 'express';
 import mongoDb from '../mongoDb';
 import { URLDataWithoutId } from '../types';
+import randomstring from 'randomstring';
 
 const linksRouter = express.Router();
 
@@ -23,7 +24,10 @@ linksRouter.post('/', async (req, res, next) => {
 
     const urlData: URLDataWithoutId = {
       originalUrl: req.body.url,
-      shortUrl: 'randomUrlHere',
+      shortUrl: randomstring.generate({
+        length: 7,
+        charset: 'alphabetic',
+      }),
     };
 
     const db = mongoDb.getDb();
@@ -33,6 +37,12 @@ linksRouter.post('/', async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+});
+
+linksRouter.delete('/', async (req, res) => {
+  const db = mongoDb.getDb();
+  await db.collection('links').deleteMany();
+  return res.send('deleted')
 });
 
 export default linksRouter;
