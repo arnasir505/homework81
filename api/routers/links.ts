@@ -1,15 +1,14 @@
 import express from 'express';
-import mongoDb from '../mongoDb';
-import { URLData, URLDataWithoutId } from '../types';
+import { URLDataWithoutId } from '../types';
 import randomstring from 'randomstring';
+import Link from '../models/Link';
 
 const linksRouter = express.Router();
 
 linksRouter.get('/', async (_req, res, next) => {
   try {
-    const db = mongoDb.getDb();
-    const result = await db.collection('links').find().toArray();
-    return res.send(result);
+    const links = await Link.find();
+    return res.send(links);
   } catch (error) {
     next(error);
   }
@@ -18,13 +17,14 @@ linksRouter.get('/', async (_req, res, next) => {
 linksRouter.get('/:shortUrl', async (req, res, next) => {
   try {
     const shortUrl = req.params.shortUrl;
-    const db = mongoDb.getDb();
-    const result = await db.collection('links').findOne({ shortUrl: shortUrl });
 
-    if (!result) {
+    const shortenedLink = await Link.findOne({ shortUrl: shortUrl });
+
+    if (!shortenedLink) {
       return res.status(404).send({ error: 'Not Found!' });
     }
-    return res.send(result);
+
+    return res.send(shortenedLink);
   } catch (error) {
     next(error);
   }
@@ -37,25 +37,24 @@ linksRouter.post('/', async (req, res, next) => {
     }
 
     const urlData: URLDataWithoutId = {
-      originalUrl: req.body.url,
       shortUrl: randomstring.generate({
         length: 7,
         charset: 'alphabetic',
       }),
+      originalUrl: req.body.url,
     };
 
-    const db = mongoDb.getDb();
-    await db.collection('links').insertOne(urlData);
+    const link = new Link(urlData);
+    await link.save();
 
-    return res.send(urlData);
+    return res.send(link);
   } catch (error) {
     next(error);
   }
 });
 
 linksRouter.delete('/', async (req, res) => {
-  const db = mongoDb.getDb();
-  await db.collection('links').deleteMany();
+  await Link.deleteMany();
   return res.send('deleted');
 });
 
