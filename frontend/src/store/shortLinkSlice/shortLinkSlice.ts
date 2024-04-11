@@ -1,5 +1,6 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { RootState } from '../../app/store';
+import { shortenLink } from './shortLinkThunks';
 
 interface ShortLinkState {
   originalUrl: string;
@@ -28,6 +29,24 @@ const shortLinkSlice = createSlice({
     clearForm: (state) => {
       state.originalUrl = '';
     },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(shortenLink.pending, (state) => {
+        state.error = false;
+        state.loading = true;
+      })
+      .addCase(
+        shortenLink.fulfilled,
+        (state, { payload: shortUrl }: PayloadAction<string>) => {
+          state.loading = false;
+          state.shortUrl = shortUrl;
+        }
+      )
+      .addCase(shortenLink.rejected, (state) => {
+        state.loading = false;
+        state.error = true;
+      });
   },
 });
 

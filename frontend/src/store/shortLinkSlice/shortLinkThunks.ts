@@ -1,8 +1,8 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import axiosApi from '../../axiosApi';
-import { URLData } from '../../types';
+import { FormData, URLData } from '../../types';
 
-export const shortenLink = createAsyncThunk<URLData, FormData>(
+export const shortenLink = createAsyncThunk<string, FormData>(
   'shortLink/shorten',
   async (urlData) => {
     try {
@@ -11,10 +11,10 @@ export const shortenLink = createAsyncThunk<URLData, FormData>(
         urlData
       );
 
-      return linkData;
+      return linkData.shortUrl;
     } catch (error) {
       console.log(error);
-      return {} as URLData;
+      return '';
     }
   }
 );

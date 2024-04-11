@@ -1,24 +1,31 @@
 import React from 'react';
 import {
   Box,
-  Button,
   Container,
   Grid,
   TextField,
   Typography,
 } from '@mui/material';
 import {
+  selectFormLoading,
   selectOriginalUrl,
+  selectShortlUrl,
   updateOriginalUrl,
 } from './store/shortLinkSlice/shortLinkSlice';
 import { useAppDispatch, useAppSelector } from './app/hooks';
+import { apiUrl } from './constants';
+import { shortenLink } from './store/shortLinkSlice/shortLinkThunks';
+import { LoadingButton } from '@mui/lab';
 
 const App: React.FC = () => {
   const dispatch = useAppDispatch();
   const originalUrl = useAppSelector(selectOriginalUrl);
+  const shortUrl = useAppSelector(selectShortlUrl);
+  const isLoading = useAppSelector(selectFormLoading);
 
   const onFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    dispatch(shortenLink({url: originalUrl}))
   };
 
   return (
@@ -46,14 +53,15 @@ const App: React.FC = () => {
               value={originalUrl}
               onChange={(e) => dispatch(updateOriginalUrl(e.target.value))}
             />
-            <Button
+            <LoadingButton
               variant='contained'
               type='submit'
               size='large'
               sx={{ mt: 2 }}
+              loading={isLoading}
             >
               Shorten
-            </Button>
+            </LoadingButton>
           </form>
         </Grid>
       </Grid>
@@ -61,8 +69,8 @@ const App: React.FC = () => {
         <Typography variant='h6' sx={{ mb: 3 }}>
           Your link now looks like this
         </Typography>
-        <a href='#' target='_blank'>
-          link
+        <a href={`${apiUrl}/links/${shortUrl}`} target='_blank'>
+          {`${apiUrl}/${shortUrl}`}
         </a>
       </Box>
     </Container>
