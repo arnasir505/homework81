@@ -5,15 +5,6 @@ import Link from '../models/Link';
 
 const linksRouter = express.Router();
 
-linksRouter.get('/', async (_req, res, next) => {
-  try {
-    const links = await Link.find();
-    return res.send(links);
-  } catch (error) {
-    next(error);
-  }
-});
-
 linksRouter.get('/:shortUrl', async (req, res, next) => {
   try {
     const shortUrl = req.params.shortUrl;
@@ -24,7 +15,7 @@ linksRouter.get('/:shortUrl', async (req, res, next) => {
       return res.status(404).send({ error: 'Not Found!' });
     }
 
-    return res.send(shortenedLink);
+    return res.status(301).redirect(shortenedLink.originalUrl);
   } catch (error) {
     next(error);
   }
@@ -51,11 +42,6 @@ linksRouter.post('/', async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-});
-
-linksRouter.delete('/', async (req, res) => {
-  await Link.deleteMany();
-  return res.send('deleted');
 });
 
 export default linksRouter;
