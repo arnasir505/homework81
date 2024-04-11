@@ -1,6 +1,6 @@
 import express from 'express';
 import mongoDb from '../mongoDb';
-import { URLDataWithoutId } from '../types';
+import { URLData, URLDataWithoutId } from '../types';
 import randomstring from 'randomstring';
 
 const linksRouter = express.Router();
@@ -8,8 +8,22 @@ const linksRouter = express.Router();
 linksRouter.get('/', async (_req, res, next) => {
   try {
     const db = mongoDb.getDb();
-
     const result = await db.collection('links').find().toArray();
+    return res.send(result);
+  } catch (error) {
+    next(error);
+  }
+});
+
+linksRouter.get('/:shortUrl', async (req, res, next) => {
+  try {
+    const shortUrl = req.params.shortUrl;
+    const db = mongoDb.getDb();
+    const result = await db.collection('links').findOne({ shortUrl: shortUrl });
+
+    if (!result) {
+      return res.status(404).send({ error: 'Not Found!' });
+    }
     return res.send(result);
   } catch (error) {
     next(error);
@@ -42,7 +56,7 @@ linksRouter.post('/', async (req, res, next) => {
 linksRouter.delete('/', async (req, res) => {
   const db = mongoDb.getDb();
   await db.collection('links').deleteMany();
-  return res.send('deleted')
+  return res.send('deleted');
 });
 
 export default linksRouter;
